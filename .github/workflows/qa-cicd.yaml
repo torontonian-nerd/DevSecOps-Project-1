@@ -54,7 +54,7 @@ jobs:
 
       - name: Run Checkov Terraform scan 
         run: | # Scans current directory for any terraform config files and returns JSON o/p
-          checkov -d . \ 
+          checkov -d . \
             --framework terraform \
             --output json > checkov-terraform-report.json || true
 
