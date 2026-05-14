@@ -36,6 +36,8 @@ jobs:
           path: gitleaks-report.json
           if-no-files-found: warn # Incase cannot find gitleaks-report.json report, do not fail the pipeline, just show a warning
 
+####################################################################################################################################
+
   checkov-terraform:
     name: Checkov Terraform Scan
     runs-on: ubuntu-latest
@@ -114,6 +116,8 @@ jobs:
           name: checkov-dockerfile-report
           path: checkov-dockerfile-report.json
           if-no-files-found: warn
+
+####################################################################################################################################
 
   client-trivy-fs:
     name: Client Trivy FS Scan
@@ -216,3 +220,126 @@ jobs:
           name: server-trivy-fs-table-report
           path: server-trivy-fs-report.txt
           if-no-files-found: warn
+
+####################################################################################################################################
+
+  client-lint:
+    name: Client Lint
+    runs-on: ubuntu-latest
+    needs:
+      - client-trivy-fs
+      - checkov-k8s
+      - checkov-dockerfile
+      - checkov-terraform
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm # Public Runner use cloud storage to store cash
+          # If the file has not changed, GitHub can reuse the existing npm cache
+          # If the file has changed, GitHub creates a new cache because your dependencies may have changed.
+          cache-dependency-path: client/package-lock.json 
+
+      - name: Install client dependencies
+        run: npm ci
+
+      - name: Run client lint
+        run: npm run lint --if-present # If the package.json exists, it runs otherwise npm skips it and the pipeline continues
+        continue-on-error: true
+
+  server-lint:
+    name: Server Lint
+    runs-on: ubuntu-latest
+    needs:
+      - server-trivy-fs
+      - checkov-k8s
+      - checkov-dockerfile
+      - checkov-terraform
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        run: npm ci
+
+      - name: Run server lint
+        run: npm run lint --if-present
+        continue-on-error: true
+
+  client-unit-testing:
+    name: Client Unit Testing
+    runs-on: ubuntu-latest
+    needs: client-lint
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install client dependencies
+        run: npm ci
+
+      - name: Run client tests
+        run: npm test --if-present
+        continue-on-error: true
+
+  server-unit-test:
+    name: Server Unit Testing
+    runs-on: ubuntu-latest
+    needs: server-lint
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        run: npm ci
+
+      - name: Run server tests
+        run: npm test --if-present
+        continue-on-error: true
+
+####################################################################################################################################
+
