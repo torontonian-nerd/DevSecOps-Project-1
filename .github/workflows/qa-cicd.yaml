@@ -430,7 +430,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           load: true # Loads the built image into the GitHub runner’s local Docker engine
-          push: false # Does not push the image to Docker Hub or any registry
+          push: true # Push the image to Docker Hub or any registry
           # Tag image with github commit-id and tags the same image with latest
           tags: |
             rahulunixsa87/devsecops-project-1-app:${{ github.sha }}
