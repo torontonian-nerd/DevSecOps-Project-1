@@ -1,0 +1,27 @@
+name: Enterprise DevSecOps CICD Pipeline
+on: 
+  push: # Trigger 
+    branches:
+      - qa # Pipeline will trigger anytime we push something to qa branch with below conditions set in different paths
+    paths:  
+      - client/**                       
+      - server/**                       
+      - .github/workflows/qa-cicd.yml   
+jobs:
+  gitleaks-scan:
+    name: Gitleaks Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Run Gitleaks Scan
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/repo" \
+            zricethezav/gitleaks:latest detect \
+            --source=/repo \
+            --report-format=json \
+            --report-path=/repo/gitleaks-report.json \
+            --redact \
+            --exit-code 0
