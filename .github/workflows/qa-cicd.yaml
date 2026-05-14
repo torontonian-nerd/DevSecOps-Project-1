@@ -1,16 +1,19 @@
 name: Enterprise DevSecOps CICD Pipeline
-on: 
-  push: # Trigger 
+
+on:
+  push: # Trigger
     branches:
       - qa # Pipeline will trigger anytime we push something to qa branch with below conditions set in different paths
-    paths:  
-      - client/**                       
-      - server/**                       
-      - .github/workflows/qa-cicd.yaml   
+    paths:
+      - client/**
+      - server/**
+      - .github/workflows/qa-cicd.yaml
+
 jobs:
   gitleaks-scan:
     name: Gitleaks Scan
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -25,3 +28,10 @@ jobs:
             --report-path=/repo/gitleaks-report.json \
             --redact \
             --exit-code 0
+
+      - name: Upload Gitleaks report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+          if-no-files-found: warn
