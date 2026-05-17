@@ -523,12 +523,12 @@ jobs:
           sed -i "s|image: rahulunixsa87/devsecops-project-1-app:.*|image: devopsshack/nodejs-app:${GITHUB_SHA}|g" eks-manifest-files/app-deployment.yaml
       - name: Show updated manifest (debug)
         run: |
-          cat eks-deployment-files/app-deployment.yaml
+          cat eks-manifest-files/app-deployment.yaml
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add eks-deployment-files/app-deployment.yaml
+          git add eks-manifest-files/app-deployment.yaml
           git commit -m "Update QA image to ${GITHUB_SHA} [skip ci]" || echo "No changes to commit"
           git push origin qa
 
