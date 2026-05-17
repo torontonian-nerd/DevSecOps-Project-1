@@ -520,7 +520,7 @@ jobs:
           ref: qa
       - name: Update image tag in manifest
         run: |
-          sed -i "s|image: rahulunixsa87/devsecops-project-1-app:.*|image: devopsshack/nodejs-app:${GITHUB_SHA}|g" eks-manifests/app-deployment.yaml
+          sed -i "s|image: rahulunixsa87/devsecops-project-1-app:.*|image: devopsshack/nodejs-app:${GITHUB_SHA}|g" eks-manifest-files/app-deployment.yaml
       - name: Show updated manifest (debug)
         run: |
           cat eks-deployment-files/app-deployment.yaml
