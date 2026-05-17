@@ -537,9 +537,6 @@ jobs:
   deploy-to-k8s:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     needs: update-qa-manifest
     env:
       AWS_REGION: ca-central-1
@@ -580,7 +577,7 @@ jobs:
 
       - name: Deploy qa manifests
         run: |
-          kubectl apply -f k8-manifests/qa/ -n "${K8S_NAMESPACE}"
+          kubectl apply -f eks-manifest-files/qa/ -n "${K8S_NAMESPACE}"
 
       - name: Verify rollout
         run: |
